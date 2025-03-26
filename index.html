@@ -1,23 +1,29 @@
+
 <!DOCTYPE html>
 <html>
 <head>
+
     <meta charset="utf-8">
-    <title>Simple VR Cube</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <title>VR</title>
+    <!--A-Frame-->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <!--Enviroment Component-->
+    <script src="https://unpkg.com/aframe-environment-component@1.3.x/dist/aframe-environment-component.min.js"></script>
+
 </head>
 <body>
+    <!--Main A-Frame Scene-->
     <a-scene>
-        <!-- The cube -->
-        <a-box position="0 1.6 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-        
-        <!-- Floor -->
-        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane>
-        
-        <!-- Sky -->
-        <a-sky color="#ECECEC"></a-sky>
-        
+        <!--Objects-->
+        <a-box src="images/box-wood-mesh.png" position="-1 0.5 -3" rotation="0 45 0" scale=""></a-box>
+        <a-sphere src="images/fire-mesh.jpg" position="0 1.25 -5" radius="1.25" ></a-sphere>
+        <a-cylinder src="images/steel-mesh.png" position="1 0.75 -3" radius="0.5" height="1.5"></a-cylinder>
+        <!--Forest-->
+        <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+        <!--Sky-->
+        <a-sky color="#87CEEB"></a-sky>
         <!-- Camera (for mobile VR) -->
-        <a-entity position="0 1.6 0">
+        <a-entity position="0 -1 0">
             <a-camera></a-camera>
         </a-entity>
     </a-scene>
