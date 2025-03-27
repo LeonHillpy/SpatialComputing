@@ -12,20 +12,41 @@
 
 </head>
 <body>
+
+    <!--Assets, defined here for rendering, then defined in src in objects.-->
+    <a-assets>
+        <img id="wood-texture" src="images/box-wood-mesh.png">
+        <img id="steel-texture" src="images/steel-mesh.png">
+        <img id="fire-texture" src="images/fire-mesh.jpg">
+        <img id="grass-texture" src="images/grass-texture.jpg">
+        <audio src="https://cdn.aframe.io/basic-guide/audio/backgroundnoise.wav" autoplay preload></audio>
+    </a-assets>
+
     <!--Main A-Frame Scene-->
     <a-scene>
         <!--Objects-->
-        <a-box src="images/box-wood-mesh.png" position="-1 0.5 -3" rotation="0 45 0" scale=""></a-box>
-        <a-sphere src="images/fire-mesh.jpg" position="0 1.25 -5" radius="1.25" ></a-sphere>
-        <a-cylinder src="images/steel-mesh.png" position="1 0.75 -3" radius="0.5" height="1.5"></a-cylinder>
-        <!--Forest-->
-        <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+        <a-box id="box" src="#wood-texture" position="-2.30768 0.52215 -3" rotation="0 45 0" scale=""></a-box>
+        <a-sphere id="sphere" src="#fire-texture" position="0.03093 1.25 -5" radius="1.25" 
+                animation="property: object3D.rotation.y; to: 122.2; dir: alternate; dur: 2000; loop: true"></a-sphere>
+        <a-cylinder id="cylinder" src="#steel-texture" position="2.48107 0.75 -3" radius="0.5" height="1.5"></a-cylinder>
+        <!--Plane-->
+        <a-plane id="plane" src="#grass-texture" rotation="-90 0 0" width="30" height="30" repeat="10 10"></a-plane>
         <!--Sky-->
-        <a-sky color="#87CEEB"></a-sky>
-        <!-- Camera (for mobile VR) -->
-        <a-entity position="0 -1 0">
+        <a-sky id="sky" color="#87CEEB"></a-sky>
+        <!--Lighting-->
+        <a-light type="ambient" color="#445451"></a-light>
+        <a-light type="point" intensity="7" position="2 4 4"></a-light>
+        <!-- Camera-->
+        <a-entity id="camera" position="0 -0.54659 1.9831">
             <a-camera></a-camera>
         </a-entity>
+        <!--Text-->
+        <a-entity text="value: Hello, welcome!; color: #FAFAFA; width: 5; anchor: align"
+            position="-0.9 0.2 -3"
+            scale="1.5 1.5 1.5">
+        </a-entity>
+
     </a-scene>
+
 </body>
 </html>
