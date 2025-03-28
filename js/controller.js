@@ -1,3 +1,6 @@
+
+// Code sourced from https://github.com/msub2/aframe-vr-character-controller/tree/main/components
+
 AFRAME.registerComponent('smooth-locomotion', {
   schema: {
     speed: { type: 'float', default: 2 },
