@@ -23,6 +23,24 @@
             <img id="grass-texture" src="images/grass-texture.jpg">
         </a-assets>
 
+        <!-- Camera Rig that will move -->
+        <a-entity id="cameraRig">
+            <!-- Camera -->
+            <a-entity id="camera" camera position="0 1.6 0" look-controls></a-entity>
+            
+            <!-- Left Controller -->
+            <a-entity id="leftController" 
+                      meta-touch-controls="hand: left"
+                      raycaster="objects: .clickable">
+            </a-entity>
+            
+            <!-- Right Controller -->
+            <a-entity id="rightController" 
+                      meta-touch-controls="hand: right"
+                      raycaster="objects: .clickable">
+            </a-entity>
+        </a-entity>
+
         <!--ENTITIES-->
         <!--Box-->
         <a-entity id="box1" 
@@ -95,6 +113,91 @@
                 color: 'ocean.color',
                 opacity: 'ocean.opacity'
             }
+        });
+
+        // Movement component
+        AFRAME.registerComponent('joystick-movement', {
+            schema: {
+                speed: {type: 'number', default: 0.1}
+            },
+            
+            init: function() {
+                this.velocity = new THREE.Vector3();
+                this.direction = new THREE.Vector3();
+                this.moveForward = false;
+                this.moveBackward = false;
+                this.moveLeft = false;
+                this.moveRight = false;
+                
+                // Listen for joystick events
+                this.el.addEventListener('axismove', (evt) => {
+                    if (evt.detail.axis[1] > 0.5) {
+                        this.moveForward = true;
+                        this.moveBackward = false;
+                    } else if (evt.detail.axis[1] < -0.5) {
+                        this.moveBackward = true;
+                        this.moveForward = false;
+                    } else {
+                        this.moveForward = false;
+                        this.moveBackward = false;
+                    }
+                    
+                    if (evt.detail.axis[0] > 0.5) {
+                        this.moveRight = true;
+                        this.moveLeft = false;
+                    } else if (evt.detail.axis[0] < -0.5) {
+                        this.moveLeft = true;
+                        this.moveRight = false;
+                    } else {
+                        this.moveLeft = false;
+                        this.moveRight = false;
+                    }
+                });
+            },
+            
+            tick: function() {
+                const camera = document.getElementById('camera').object3D;
+                const rig = this.el.object3D;
+                const delta = this.data.speed;
+                
+                this.velocity.x -= this.velocity.x * 10.0 * delta;
+                this.velocity.z -= this.velocity.z * 10.0 * delta;
+                
+                this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
+                this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
+                this.direction.normalize();
+                
+                if (this.moveForward || this.moveBackward) {
+                    this.velocity.z -= this.direction.z * 400.0 * delta;
+                }
+                if (this.moveLeft || this.moveRight) {
+                    this.velocity.x -= this.direction.x * 400.0 * delta;
+                }
+                
+                // Move in the direction the camera is looking
+                const moveX = this.velocity.x * delta;
+                const moveZ = this.velocity.z * delta;
+                
+                // Get camera's forward vector (ignoring pitch)
+                const forward = new THREE.Vector3();
+                camera.getWorldDirection(forward);
+                forward.y = 0;
+                forward.normalize();
+                
+                // Get camera's right vector
+                const right = new THREE.Vector3();
+                right.crossVectors(new THREE.Vector3(0, 1, 0), forward);
+                
+                // Apply movement
+                rig.position.add(forward.multiplyScalar(-moveZ));
+                rig.position.add(right.multiplyScalar(moveX));
+            }
+        });
+
+        // Add movement component to camera rig
+        document.querySelector('a-scene').addEventListener('loaded', function() {
+            const cameraRig = document.getElementById('cameraRig');
+            cameraRig.setAttribute('joystick-movement', 'speed: 0.05');
         });
     </script>
 
