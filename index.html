@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>VR</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <!-- Remove aframe-extras since we're using custom movement -->
     <script src="https://unpkg.com/aframe-environment-component@1.3.x/dist/aframe-environment-component.min.js"></script>
 </head>
 <body>
@@ -16,6 +15,7 @@
             <img id="grass-texture" src="images/grass-texture.jpg">
         </a-assets>
 
+        <!-- Your scene objects here -->
         <a-box id="box" src="#wood-texture" position="-2.30768 0.52215 -3" rotation="0 45 0"></a-box>
         <a-sphere id="sphere" src="#fire-texture" position="0.03093 1.25 -5" radius="1.25" 
             animation="property: object3D.rotation.y; to: 122.2; dir: alternate; dur: 2000; loop: true"></a-sphere>
@@ -29,12 +29,12 @@
         <a-light type="ambient" color="#445451"></a-light>
         <a-light type="point" intensity="7" position="2 4 4"></a-light>
 
-        <!-- Corrected Camera Setup -->
-        <a-entity id="camera-rig" position="0 1.6 2">
+        <!-- Camera Rig Setup -->
+        <a-entity id="camera-rig" position="0 1.6 0">
             <a-entity id="camera" 
                       camera
                       look-controls
-                      thumbstick-movement>
+                      wasd-controls>
             </a-entity>
             <a-entity laser-controls="hand: right"></a-entity>
             <a-entity laser-controls="hand: left"></a-entity>
@@ -42,50 +42,59 @@
     </a-scene>
 
     <script>
-        AFRAME.registerComponent('thumbstick-movement', {
-            init: function () {
-                this.velocity = new THREE.Vector3();
-                this.speed = 0.1;
-                this.rig = document.querySelector('#camera-rig');
-                
-                this.el.addEventListener('thumbstickmoved', (evt) => {
-                    const { x, y } = evt.detail;
-                    
-                    // Get camera direction
-                    const direction = new THREE.Vector3();
-                    this.el.object3D.getWorldDirection(direction);
-                    direction.y = 0;
-                    direction.normalize();
-                    
-                    // Calculate movement vector
-                    const forward = new THREE.Vector3(0, 0, -1);
-                    forward.applyQuaternion(this.el.object3D.quaternion);
-                    forward.y = 0;
-                    forward.normalize();
-                    
-                    const right = new THREE.Vector3(1, 0, 0);
-                    right.applyQuaternion(this.el.object3D.quaternion);
-                    right.y = 0;
-                    right.normalize();
-                    
-                    // Combine movement
-                    this.velocity.x = forward.x * y + right.x * x;
-                    this.velocity.z = forward.z * y + right.z * x;
-                    this.velocity.multiplyScalar(this.speed);
-                });
-                
-                this.el.addEventListener('thumbstickend', () => {
-                    this.velocity.set(0, 0, 0);
-                });
-            },
+        // Wait for scene to load
+        document.querySelector('a-scene').addEventListener('loaded', function() {
+            const rig = document.querySelector('#camera-rig');
+            const camera = document.querySelector('#camera');
+            const velocity = new THREE.Vector3();
+            const speed = 0.15;
             
-            tick: function () {
-                // Apply movement to the rig, not the camera
-                const rig = document.querySelector('#camera-rig');
-                const newPosition = rig.object3D.position.clone();
-                newPosition.add(this.velocity);
-                rig.object3D.position.copy(newPosition);
+            // Controller movement
+            function handleControllerMove(evt) {
+                if (evt.detail.axis[0] === 0 && evt.detail.axis[1] === 0) {
+                    velocity.set(0, 0, 0);
+                    return;
+                }
+                
+                const [x, y] = evt.detail.axis;
+                const forward = new THREE.Vector3();
+                const right = new THREE.Vector3();
+                
+                // Get camera direction
+                camera.object3D.getWorldDirection(forward);
+                forward.y = 0;
+                forward.normalize();
+                
+                // Get right vector
+                right.crossVectors(forward, new THREE.Vector3(0, 1, 0));
+                
+                // Calculate movement direction
+                velocity.x = forward.x * y + right.x * x;
+                velocity.z = forward.z * y + right.z * x;
+                velocity.normalize();
+                velocity.multiplyScalar(speed);
             }
+            
+            // Add event listeners to both controllers
+            document.querySelector('[laser-controls="hand: right"]').addEventListener('axismove', handleControllerMove);
+            document.querySelector('[laser-controls="hand: left"]').addEventListener('axismove', handleControllerMove);
+            
+            // Stop movement when thumbstick is released
+            document.querySelector('[laser-controls="hand: right"]').addEventListener('axisend', () => velocity.set(0, 0, 0));
+            document.querySelector('[laser-controls="hand: left"]').addEventListener('axisend', () => velocity.set(0, 0, 0));
+            
+            // Movement update loop
+            document.querySelector('a-scene').addEventListener('renderstart', function() {
+                const updateMovement = function() {
+                    if (velocity.length() > 0) {
+                        const newPosition = rig.object3D.position.clone();
+                        newPosition.add(velocity);
+                        rig.object3D.position.copy(newPosition);
+                    }
+                    requestAnimationFrame(updateMovement);
+                };
+                updateMovement();
+            });
         });
     </script>
 </body>
