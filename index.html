@@ -75,6 +75,12 @@
         <a-entity meta-touch-controls="hand: left"></a-entity>
         <a-entity meta-touch-controls="hand: right"></a-entity>
 
+        <a-entity id="player">
+            <a-entity id="head" camera wasd-controls look-controls></a-entity>        
+            <a-controller id="controllerL" hand="left" move="true"></a-controller>
+            <a-controller id="controllerR" hand="right" turn-type="snap"></a-controller>
+        </a-entity>
+
     </a-scene>
 
     <script>
