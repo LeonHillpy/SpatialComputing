@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,12 +9,13 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
     <!--Community Physics System-->
     <script src="https://unpkg.com/@c-frame/aframe-physics-system@4.2.2/dist/aframe-physics-system.min.js"></script>
-    <!--Enviroment Components-->
+    <!--Environment Components-->
     <script src="https://unpkg.com/aframe-environment-component@1.3.x/dist/aframe-environment-component.min.js"></script>
+</head>
 <body>
     <!--Main A-Frame Scene-->
-    <a-scene physics="debug: false; gravity: -9.8">
-        <!--Assets, defined here for rendering, then defined in src in objects.-->
+    <a-scene physics="debug: false; gravity: -9.8" xr-mode-ui="XRMode: vr">
+        <!--Assets-->
         <a-assets>
             <img id="wood-texture" src="images/box-wood-mesh.png">
             <img id="steel-texture" src="images/steel-mesh.png">
@@ -23,7 +23,7 @@
             <img id="grass-texture" src="images/grass-texture.jpg">
         </a-assets>
 
-        <!-- Camera Rig that will move -->
+        <!-- Camera Rig with movement controls -->
         <a-entity id="cameraRig">
             <!-- Camera -->
             <a-entity id="camera" camera position="0 1.6 0" look-controls></a-entity>
@@ -31,13 +31,17 @@
             <!-- Left Controller -->
             <a-entity id="leftController" 
                       meta-touch-controls="hand: left"
-                      raycaster="objects: .clickable">
+                      raycaster="objects: [dynamic-body], [static-body]">
+                <a-entity geometry="primitive: ring" radius-inner="0.01" radius-outer="0.02" 
+                          material="color: white" position="0 0 -0.1" rotation="-90 0 0"></a-entity>
             </a-entity>
             
             <!-- Right Controller -->
             <a-entity id="rightController" 
                       meta-touch-controls="hand: right"
-                      raycaster="objects: .clickable">
+                      raycaster="objects: [dynamic-body], [static-body]">
+                <a-entity geometry="primitive: ring" radius-inner="0.01" radius-outer="0.02" 
+                          material="color: white" position="0 0 -0.1" rotation="-90 0 0"></a-entity>
             </a-entity>
         </a-entity>
 
@@ -47,7 +51,6 @@
                   geometry="primitive: box"
                   material="src: #wood-texture"
                   position="-1.10502 0.6 -4.97359" 
-                  scale="" 
                   dynamic-body></a-entity>
                   
         <!--Cylinder-->
@@ -89,23 +92,15 @@
         <!--Sky-->
         <a-sky id="sky" color="#87CEEB"></a-sky>
 
-        <!--Meta Quest Controllers-->
-        <a-entity meta-touch-controls="hand: left"></a-entity>
-        <a-entity meta-touch-controls="hand: right"></a-entity>
-
     </a-scene>
 
     <script>
         // Ocean primitive
         AFRAME.registerPrimitive('a-ocean', {
-            // Attaches the `ocean` component by default.
-            // Defaults the ocean to be parallel to the ground.
             defaultComponents: {
                 ocean: {},
                 rotation: {x: -90, y: 0, z: 0},
             },
-
-            // Maps HTML attributes to the `ocean` component's properties.
             mappings: {
                 width: 'ocean.width',
                 depth: 'ocean.depth',
@@ -115,10 +110,11 @@
             }
         });
 
-        // Movement component
+        // Improved movement component
         AFRAME.registerComponent('joystick-movement', {
             schema: {
-                speed: {type: 'number', default: 0.1}
+                speed: {type: 'number', default: 0.05},
+                enabled: {type: 'boolean', default: true}
             },
             
             init: function() {
@@ -129,77 +125,95 @@
                 this.moveLeft = false;
                 this.moveRight = false;
                 
-                // Listen for joystick events
-                this.el.addEventListener('axismove', (evt) => {
-                    if (evt.detail.axis[1] > 0.5) {
-                        this.moveForward = true;
-                        this.moveBackward = false;
-                    } else if (evt.detail.axis[1] < -0.5) {
-                        this.moveBackward = true;
-                        this.moveForward = false;
-                    } else {
-                        this.moveForward = false;
-                        this.moveBackward = false;
-                    }
-                    
-                    if (evt.detail.axis[0] > 0.5) {
-                        this.moveRight = true;
-                        this.moveLeft = false;
-                    } else if (evt.detail.axis[0] < -0.5) {
-                        this.moveLeft = true;
-                        this.moveRight = false;
-                    } else {
-                        this.moveLeft = false;
-                        this.moveRight = false;
-                    }
-                });
+                // Controller events
+                this.onAxisMove = this.onAxisMove.bind(this);
+                this.el.sceneEl.addEventListener('axismove', this.onAxisMove);
+                
+                console.log('Joystick movement component initialized');
             },
             
-            tick: function() {
+            onAxisMove: function(evt) {
+                if (!this.data.enabled) return;
+                if (evt.detail.controller.id.endsWith('leftController')) {
+                    const axis = evt.detail.axis;
+                    // Left joystick (axis 0 and 1)
+                    this.moveForward = axis[1] > 0.3;
+                    this.moveBackward = axis[1] < -0.3;
+                    this.moveLeft = axis[0] < -0.3;
+                    this.moveRight = axis[0] > 0.3;
+                    
+                    // Debug output
+                    if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
+                        console.log('Joystick moved:', {
+                            forward: this.moveForward,
+                            backward: this.moveBackward,
+                            left: this.moveLeft,
+                            right: this.moveRight
+                        });
+                    }
+                }
+            },
+            
+            tick: function(time, timeDelta) {
+                if (!this.data.enabled) return;
+                
+                const delta = timeDelta / 1000 * this.data.speed;
                 const camera = document.getElementById('camera').object3D;
                 const rig = this.el.object3D;
-                const delta = this.data.speed;
                 
-                this.velocity.x -= this.velocity.x * 10.0 * delta;
-                this.velocity.z -= this.velocity.z * 10.0 * delta;
+                // Dampen velocity
+                this.velocity.x *= 0.9;
+                this.velocity.z *= 0.9;
                 
+                // Set direction based on input
                 this.direction.z = Number(this.moveForward) - Number(this.moveBackward);
                 this.direction.x = Number(this.moveRight) - Number(this.moveLeft);
-                this.direction.normalize();
                 
-                if (this.moveForward || this.moveBackward) {
-                    this.velocity.z -= this.direction.z * 400.0 * delta;
+                if (this.direction.length() > 0) {
+                    this.direction.normalize();
+                    
+                    // Get camera forward vector (horizontal only)
+                    const forward = new THREE.Vector3();
+                    camera.getWorldDirection(forward);
+                    forward.y = 0;
+                    forward.normalize();
+                    
+                    // Get camera right vector
+                    const right = new THREE.Vector3();
+                    right.crossVectors(new THREE.Vector3(0, 1, 0), forward);
+                    
+                    // Apply movement
+                    if (this.moveForward || this.moveBackward) {
+                        this.velocity.add(forward.multiplyScalar(-this.direction.z * delta * 5));
+                    }
+                    if (this.moveLeft || this.moveRight) {
+                        this.velocity.add(right.multiplyScalar(this.direction.x * delta * 5));
+                    }
                 }
-                if (this.moveLeft || this.moveRight) {
-                    this.velocity.x -= this.direction.x * 400.0 * delta;
-                }
                 
-                // Move in the direction the camera is looking
-                const moveX = this.velocity.x * delta;
-                const moveZ = this.velocity.z * delta;
-                
-                // Get camera's forward vector (ignoring pitch)
-                const forward = new THREE.Vector3();
-                camera.getWorldDirection(forward);
-                forward.y = 0;
-                forward.normalize();
-                
-                // Get camera's right vector
-                const right = new THREE.Vector3();
-                right.crossVectors(new THREE.Vector3(0, 1, 0), forward);
-                
-                // Apply movement
-                rig.position.add(forward.multiplyScalar(-moveZ));
-                rig.position.add(right.multiplyScalar(moveX));
+                // Update position
+                rig.position.add(this.velocity.clone().multiplyScalar(delta));
+            },
+            
+            remove: function() {
+                this.el.sceneEl.removeEventListener('axismove', this.onAxisMove);
             }
         });
 
-        // Add movement component to camera rig
+        // Initialize movement when scene loads
         document.querySelector('a-scene').addEventListener('loaded', function() {
             const cameraRig = document.getElementById('cameraRig');
             cameraRig.setAttribute('joystick-movement', 'speed: 0.05');
+            console.log('Movement system initialized');
+            
+            // Debug: Check if controllers are present
+            const leftController = document.getElementById('leftController');
+            const rightController = document.getElementById('rightController');
+            console.log('Controllers detected:', {
+                left: !!leftController.components['meta-touch-controls'],
+                right: !!rightController.components['meta-touch-controls']
+            });
         });
     </script>
-
 </body>
 </html>
