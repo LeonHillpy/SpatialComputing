@@ -40,27 +40,54 @@
         <a-light type="ambient" color="#445451"></a-light>
         <a-light type="point" intensity="7" position="2 4 4"></a-light>
         <!-- Camera-->
-        <a-entity id="camera" position="0 0 1.9831" movement-controls="fly: true">
-            <a-camera></a-camera>
-            <a-entity camera look-controls movement-controls="speed: 0.1"></a-entity>
+        <a-entity id="camera-rig" movement-controls="speed: 0.1">
+            <a-entity id="camera" 
+                      position="0 1.6 3"
+                      camera
+                      look-controls
+                      thumbstick-movement>
+            </a-entity>
+            <!-- Laser pointers -->
             <a-entity laser-controls="hand: right"></a-entity>
-            <a-entity laser-controls="hand: left"></a-entity>            
+            <a-entity laser-controls="hand: left"></a-entity>
         </a-entity>
 
     </a-scene>
 
     <script>
         AFRAME.registerComponent('thumbstick-movement', {
-          init: function () {
+        init: function () {
+            this.moveVelocity = new THREE.Vector3();
+            this.speed = 0.2; // Slightly faster for natural movement
+            
+            // Listen for thumbstick movement
             this.el.addEventListener('thumbstickmoved', (evt) => {
-              const { x, y } = evt.detail;
-              const camera = this.el;
-              const direction = new THREE.Vector3(x, 0, -y).normalize();
-              const speed = 0.1;
-              camera.object3D.position.add(direction.multiplyScalar(speed));
+                const { x, y } = evt.detail;
+                
+                // Get camera direction (but ignore vertical tilt)
+                const camera = this.el;
+                const direction = new THREE.Vector3();
+                camera.object3D.getWorldDirection(direction);
+                direction.y = 0;
+                direction.normalize();
+                
+                // Apply movement relative to camera direction
+                this.moveVelocity.x = direction.x * y + direction.z * x;
+                this.moveVelocity.z = direction.z * y - direction.x * x;
+                this.moveVelocity.multiplyScalar(this.speed);
             });
-          }
-        });
+            
+            // Stop movement when thumbstick is released
+            this.el.addEventListener('thumbstickend', () => {
+                this.moveVelocity.set(0, 0, 0);
+            });
+        },
+        
+        tick: function () {
+            // Apply movement smoothly every frame
+            this.el.object3D.position.add(this.moveVelocity);
+        }
+    });
       </script>
 
 </body>
