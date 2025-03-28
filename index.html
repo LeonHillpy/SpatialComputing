@@ -13,121 +13,8 @@
     <script src="https://unpkg.com/aframe-environment-component@1.3.x/dist/aframe-environment-component.min.js"></script>
     <!--Hand Controls-->
     <script src="https://cdn.jsdelivr.net/npm/aframe-teleport-controls@0.3.0/dist/aframe-teleport-controls.min.js"></script>
-    <!--Custom Controller Script-->
-    <script>
-        // Controller.js content with fixes
-        AFRAME.registerComponent('smooth-locomotion', {
-          schema: {
-            speed: { type: 'float', default: 2 },
-            active: { type: 'boolean', default: false },
-            fly: { type: 'boolean', default: false },
-          },
-          init: function () {
-            if (!this.data.active) return;
-
-            this.player = document.querySelector('#player');
-            this.head = document.querySelector('#head');
-            this.leftHand = document.querySelector('#controllerL');
-
-            this.moveX = 0;
-            this.moveY = 0;
-            this.moveVector = new THREE.Vector3();
-            this.headRot = new THREE.Euler(0, 0, 0, 'YXZ');
-
-            this.leftHand.addEventListener('axismove', event => {
-              this.moveX = event.detail.axis[2] || event.detail.axis[0];
-              this.moveY = event.detail.axis[3] || event.detail.axis[1];
-            });
-          },
-          tick: function (time, timeDelta) {
-            if (!this.data.active || (this.moveX === 0 && this.moveY === 0)) return;
-            this.move(timeDelta / 1000);
-          },
-          move: function (dt) {
-            this.moveVector.set(this.moveX, 0, this.moveY).normalize();
-            this.headRot.setFromQuaternion(this.head.object3D.quaternion);
-            if (!this.data.fly) this.headRot.set(0, this.headRot.y, 0);
-            const scaledMovement = this.moveVector.multiplyScalar(this.data.speed * dt);
-            this.player.object3D.position.add(
-              scaledMovement.applyEuler(this.headRot)
-                .applyQuaternion(this.player.object3D.quaternion)
-            );
-          }
-        });
-
-        AFRAME.registerComponent('turn-controls', {
-          schema: {
-            turnType: { type: 'string', default: 'none' },
-            snapDegrees: { type: 'float', default: 45 },
-            turnSpeed: { type: 'float', default: 2 }
-          },
-          init: function () {
-            if (this.data.turnType === 'none') return;
-            if (this.data.turnType !== 'snap' && this.data.turnType !== 'smooth') {
-              console.error("Invalid turnType! Only 'none', 'snap', and 'smooth' are accepted.");
-              return;
-            }
-
-            this.player = document.querySelector('#player');
-            this.head = this.player.querySelector('#head');
-            this.rightHand = document.querySelector('#controllerR');
-
-            this.rotateX = 0;
-            this.justSnapped = false;
-            this.unsnapZone = 0.99;
-
-            this.lastHeadPos = new THREE.Vector3();
-            this.currentHeadPos = new THREE.Vector3();
-            this.newHeadPos = new THREE.Vector3();
-
-            this.rightHand.addEventListener('axismove', (event) => {
-              this.rotateX = event.detail.axis[2] || event.detail.axis[0];
-            });
-          },
-          tick: function (time, timeDelta) {
-            if (this.data.turnType === 'none') return;
-            if (this.data.turnType === 'snap') this.snapTurn();
-            if (this.data.turnType === 'smooth') this.smoothTurn(timeDelta / 1000);
-          },
-          snapTurn: function () {
-            if (!this.justSnapped && Math.abs(this.rotateX) === 1) {
-              this.lastHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
-              this.player.object3D.rotation.y += (this.data.snapDegrees * (Math.PI / 180) * -this.rotateX);
-              this.player.object3D.updateMatrixWorld();
-              this.newHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
-              this.player.object3D.position.add(this.lastHeadPos.sub(this.newHeadPos));
-              this.justSnapped = true;
-            }
-            else if (this.rotateX > -this.unsnapZone && this.rotateX < this.unsnapZone) {
-              this.justSnapped = false;
-            }
-          },
-          smoothTurn: function (dt) {
-            if (this.rotateX !== 0) {
-              this.lastHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
-              this.player.object3D.rotation.y += -this.rotateX * dt * this.data.turnSpeed;
-              this.player.object3D.updateMatrixWorld();
-              this.newHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
-              this.player.object3D.position.add(this.lastHeadPos.sub(this.newHeadPos));
-            }
-          }
-        });
-
-        AFRAME.registerPrimitive('a-controller', {
-          defaultComponents: {
-            'smooth-locomotion': {},
-            'turn-controls': {},
-            'hand-controls': { hand: 'left', handModelStyle: 'lowPoly', color: '#ffcccc' },
-            'oculus-touch-controls': {}
-          },
-          mappings: {
-            hand: 'hand-controls.hand',
-            move: 'smooth-locomotion.active',
-            speed: 'smooth-locomotion.speed',
-            'turn-type': 'turn-controls.turnType'
-          }
-        });
-    </script>
+    <!--Controller.js-->
+    <script src="js/controller.js"></script>
 </head>
 <body>
     <!--Main A-Frame Scene-->
@@ -140,8 +27,8 @@
             <img id="grass-texture" src="images/grass-texture.jpg">
         </a-assets>
 
-        <!-- Player Rig -->
-        <a-entity id="player" position="0 1.6 0">
+        <!-- Player Rig for Controller Movement -->
+        <a-entity id="player" position="0 1 0">
             <a-entity id="head" camera wasd-controls look-controls></a-entity>
             <a-controller id="controllerL" hand="left" move="true"></a-controller>
             <a-controller id="controllerR" hand="right" turn-type="snap"></a-controller>
@@ -210,7 +97,6 @@
                 opacity: 'ocean.opacity'
             }
         });
-
         // Debug controller events
         document.querySelector('a-scene').addEventListener('loaded', function() {
             const leftController = document.querySelector('#controllerL');
