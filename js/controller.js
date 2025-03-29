@@ -169,20 +169,49 @@ AFRAME.registerPrimitive('a-controller', {
   }
 });
 
-AFRAME.registerComponent('reset-on-vr-exit', {
+AFRAME.registerComponent('quest3-controller-reset', {
   init: function() {
-    this.el.sceneEl.addEventListener('exit-vr', () => {
-      const controllers = document.querySelectorAll('[hand-controls], [oculus-touch-controls]');
+    const sceneEl = this.el;
+    let controllers = [];
+
+    // Reset function
+    const resetControllers = () => {
       controllers.forEach(controller => {
-        // Reset rotation and position
-        controller.setAttribute('rotation', '0 0 0');
+        // Reset rotation and model orientation
+        controller.object3D.rotation.set(0, 0, 0);
         
-        // Optional: Reset the controller model if it exists
         const model = controller.querySelector('[gltf-model], [obj-model]');
-        if (model) {
-          model.setAttribute('rotation', '0 0 0');
+        if (model) model.object3D.rotation.set(0, 0, 0);
+        
+        // Quest 3 specific: Force controller system reinitialization
+        if (controller.components['oculus-touch-controls']) {
+          controller.components['oculus-touch-controls'].updateControllerModel();
         }
       });
+    };
+
+    // Track controllers
+    sceneEl.addEventListener('controllerconnected', (e) => {
+      controllers.push(e.detail.target);
     });
+
+    // Handle both exit and enter events
+    sceneEl.addEventListener('exit-vr', resetControllers);
+    sceneEl.addEventListener('enter-vr', resetControllers); // Add this for Quest 3
+    
+    // Periodic check (for Quest 3 menu button pause/resume)
+    this.interval = setInterval(() => {
+      if (sceneEl.is('vr-mode')) {
+        controllers.forEach(c => {
+          if (Math.abs(c.object3D.rotation.x) > 0.5) {
+            resetControllers();
+          }
+        });
+      }
+    }, 1000);
+  },
+
+  remove: function() {
+    clearInterval(this.interval);
   }
 });
