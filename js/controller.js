@@ -1,5 +1,16 @@
 
-// Code sourced from https://github.com/msub2/aframe-vr-character-controller/tree/main/components
+/*
+
+The purpose of this code is to implement controller support for
+the Meta Quest 3, allowing movement with left joystick, and
+snap turning with right joystick.
+This Javascrpt code is not my own, please see reference below.
+
+msub2, (2023), 'aframe-vr-character-controller',
+Available at: https://github.com/msub2/aframe-vr-character-controller.
+Accessed: 28th March 2025.
+
+*/
 
 AFRAME.registerComponent('smooth-locomotion', {
   schema: {
@@ -8,112 +19,153 @@ AFRAME.registerComponent('smooth-locomotion', {
     fly: { type: 'boolean', default: false },
   },
   init: function () {
-    // Do nothing if this controller isn't meant to smooth locomote
     if (!this.data.active) return;
 
     // Get scene element references
     this.player = document.querySelector('#player');
     this.head = document.querySelector('#head');
-    var leftHand = document.querySelector('#controllerL');
+    this.leftHand = document.querySelector('#controllerL');
 
-    // Set up variables to store controller input data and three.js data
+    // Movement variables
     this.moveX = 0;
     this.moveY = 0;
     this.moveVector = new THREE.Vector3();
-    this.headRot = new THREE.Euler(0, 0, 0, 'YXZ'); // Y rotations will be applied first
+    this.headRot = new THREE.Euler(0, 0, 0, 'YXZ');
 
-    // Hook up event listeners for the relevant movement input events.
-    // Will try to read thumbstick input before trackpad input.
-    leftHand.addEventListener('axismove', event => {
-      this.moveX = event.detail.axis[2] != 0 ? event.detail.axis[2] : event.detail.axis[0];
-      this.moveY = event.detail.axis[3] != 0 ? event.detail.axis[3] : event.detail.axis[1];
+    // Add deadzone for thumbstick
+    this.deadzone = 0.15;
+
+    this.leftHand.addEventListener('axismove', event => {
+      // Apply deadzone to thumbstick input
+      const rawX = event.detail.axis[2] || event.detail.axis[0];
+      const rawY = event.detail.axis[3] || event.detail.axis[1];
+      
+      this.moveX = Math.abs(rawX) > this.deadzone ? 
+        (rawX - (Math.sign(rawX) * this.deadzone)) / (1 - this.deadzone) : 0;
+      this.moveY = Math.abs(rawY) > this.deadzone ? 
+        (rawY - (Math.sign(rawY) * this.deadzone)) / (1 - this.deadzone) : 0;
     });
   },
   tick: function (time, timeDelta) {
-    // Do nothing if this controller isn't meant to smooth locomote
-    if (!this.data.active) return;
-
-    // If there's input coming in, move the player
-    if (this.moveX + this.moveY != 0)
-      this.move(timeDelta / 1000);
+    if (!this.data.active || (this.moveX === 0 && this.moveY === 0)) return;
+    this.move(timeDelta / 1000);
   },
   move: function (dt) {
-    // Get our initial move vector and normalize it
     this.moveVector.set(this.moveX, 0, this.moveY).normalize();
-    // Store our head rotation into our Euler variable
-    this.headRot.setFromQuaternion(head.object3D.quaternion);
-    // If we don't want to fly, this zeroes out any movement that isn't side-to-side
+    this.headRot.setFromQuaternion(this.head.object3D.quaternion);
     if (!this.data.fly) this.headRot.set(0, this.headRot.y, 0);
-    // Scale our movement vector based on speed
+    
     const scaledMovement = this.moveVector.multiplyScalar(this.data.speed * dt);
-    // Adjust our vector based on where we're looking and then move the player
-    player.object3D.position.add(scaledMovement.applyEuler(this.headRot).applyQuaternion(this.player.object3D.quaternion));
-  },
+    this.player.object3D.position.add(
+      scaledMovement.applyEuler(this.headRot)
+        .applyQuaternion(this.player.object3D.quaternion)
+    );
+  }
 });
 
 AFRAME.registerComponent('turn-controls', {
   schema: {
     turnType: { type: 'string', default: 'none' },
     snapDegrees: { type: 'float', default: 45 },
-    turnSpeed: { type: 'float', default: 2 }
+    turnSpeed: { type: 'float', default: 2 },
+    deadzone: { type: 'float', default: 0.2 },
+    cooldown: { type: 'int', default: 300 } // ms between snaps
   },
   init: function () {
-    // Do nothing if this controller isn't meant to turn or the turnType is invalid
-    if (this.data.turnType == 'none') return;
-    this.invalid = this.data.turnType != 'snap' && this.data.turnType != 'smooth'
-    if (this.invalid) {
-      console.log("You have not entered a valid turnType! Only none, snap, and smooth are accepted.");
+    if (this.data.turnType === 'none') return;
+    
+    // Validate turn type
+    if (this.data.turnType !== 'snap' && this.data.turnType !== 'smooth') {
+      console.error("Invalid turnType! Only 'none', 'snap', and 'smooth' are accepted.");
       return;
     }
 
-    // Get scene element references
-    this.player = document.querySelector('a-scene').querySelector('#player');
-    this.head = player.querySelector('#head');
-    var controllerR = document.querySelector('a-scene').querySelector('#controllerR');
-
-    // Set up variables to read controller input and control turn logic
+    // Get elements
+    this.player = document.querySelector('#player');
+    this.head = this.player.querySelector('#head');
+    this.rightHand = document.querySelector('#controllerR');
+    
+    // Turn variables
     this.rotateX = 0;
-    this.justSnapped = false;
-    this.unsnapZone = .99;
-
-    // Set up variables to facilitate position adjustment after turning
+    this.lastTurnTime = 0;
+    
+    // Position adjustment vectors
     this.lastHeadPos = new THREE.Vector3();
-    this.currentHeadPos = new THREE.Vector3();
     this.newHeadPos = new THREE.Vector3();
 
-    // Hook up event listeners for the relevant turning input events
-    controllerR.addEventListener('axismove', (event) => {
-      this.rotateX = event.detail.axis[2] != 0 ? event.detail.axis[2] : event.detail.axis[0];
+    // Add visual indicator
+    this.addTurnIndicator();
+    
+    // Thumbstick event with deadzone
+    this.rightHand.addEventListener('axismove', (event) => {
+      const rawValue = event.detail.axis[2] || event.detail.axis[0];
+      // Apply deadzone
+      this.rotateX = Math.abs(rawValue) > this.data.deadzone ? 
+        (rawValue - (Math.sign(rawValue) * this.data.deadzone)) / (1 - this.data.deadzone) : 0;
     });
   },
-  tick: function (time, timeDelta) {
-    // Do nothing if this controller isn't meant to turn or the turnType is invalid
-    if (this.data.turnType == 'none' || this.invalid) return;
-
-    // Adjust position and turn based on schema
-    if (this.data.turnType == 'snap') this.snapTurn();
-    if (this.data.turnType == 'smooth') this.smoothTurn(timeDelta / 1000);
-
+  
+  addTurnIndicator: function() {
+    if (!document.querySelector('#turnIndicator')) {
+      const indicator = document.createElement('a-ring');
+      indicator.setAttribute('id', 'turnIndicator');
+      indicator.setAttribute('radius-inner', '0.02');
+      indicator.setAttribute('radius-outer', '0.03');
+      indicator.setAttribute('position', '0 0 -0.1');
+      indicator.setAttribute('rotation', '-90 0 0');
+      indicator.setAttribute('material', 'color: grey; transparent: true; opacity: 0.5');
+      indicator.setAttribute('visible', 'false');
+      this.rightHand.appendChild(indicator);
+    }
   },
+  
+  tick: function (time, timeDelta) {
+    if (this.data.turnType === 'none') return;
+    
+    if (this.data.turnType === 'snap') this.snapTurn();
+    if (this.data.turnType === 'smooth') this.smoothTurn(timeDelta / 1000);
+  },
+  
   snapTurn: function () {
-    // If player hasn't snapped yet and input is max on either end, rotate the player by snapDegrees
-    if (!this.justSnapped) {
-      if (Math.abs(this.rotateX) == 1) {
-        this.lastHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
-        this.player.object3D.rotation.y += (this.data.snapDegrees * (Math.PI / 180) * -this.rotateX);
-        this.player.object3D.updateMatrixWorld();
-        this.newHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
-        this.player.object3D.position.add(this.lastHeadPos.sub(this.newHeadPos));
-        this.justSnapped = true;
+    const now = Date.now();
+    const timeSinceLastTurn = now - this.lastTurnTime;
+    
+    // Only turn if past cooldown and thumbstick pushed far enough
+    if (timeSinceLastTurn > this.data.cooldown && Math.abs(this.rotateX) > 0.8) {
+      // Store head position before turn
+      this.lastHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
+      
+      // Calculate turn direction and amount
+      const turnDirection = -Math.sign(this.rotateX);
+      this.player.object3D.rotation.y += this.data.snapDegrees * (Math.PI/180) * turnDirection;
+      
+      // Update world matrix after rotation
+      this.player.object3D.updateMatrixWorld();
+      
+      // Adjust position to compensate for head movement
+      this.newHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
+      this.player.object3D.position.add(this.lastHeadPos.sub(this.newHeadPos));
+      
+      // Update last turn time
+      this.lastTurnTime = now;
+      
+      // Visual feedback
+      const indicator = document.querySelector('#turnIndicator');
+      if (indicator) {
+        indicator.setAttribute('material', 'color', turnDirection > 0 ? 'red' : 'blue');
+        indicator.setAttribute('visible', 'true');
+        setTimeout(() => indicator.setAttribute('visible', 'false'), 200);
+      }
+      
+      // Haptic feedback if available
+      if (this.rightHand.components.haptics) {
+        this.rightHand.components.haptics.pulse(0.5, 50);
       }
     }
-    // If player has snapped, check to see if they've moved away from either end
-    else if (this.rotateX > -this.unsnapZone && this.rotateX < this.unsnapZone)
-      this.justSnapped = false;
   },
+  
   smoothTurn: function (dt) {
-    // If there's input, rotate the player smoothly
-    if (this.rotateX != 0) {
+    if (this.rotateX !== 0) {
       this.lastHeadPos.setFromMatrixPosition(this.head.object3D.matrixWorld);
       this.player.object3D.rotation.y += -this.rotateX * dt * this.data.turnSpeed;
       this.player.object3D.updateMatrixWorld();
@@ -124,20 +176,20 @@ AFRAME.registerComponent('turn-controls', {
 });
 
 AFRAME.registerPrimitive('a-controller', {
-    defaultComponents: {
-        'smooth-locomotion': {},
-        'turn-controls': {},
-        'hand-controls': { hand: 'left', handModelStyle: 'lowPoly', color: '#ffcccc' },
-        grab: {},
-        'vive-controls': {},
-        'oculus-touch-controls': {},
-        'windows-motion-controls': {},
-    },
-    mappings: {
-        hand: 'hand-controls.hand',
-        move: 'smooth-locomotion.active',
-        speed: 'smooth-locomotion.speed',
-        turn: 'turn-controls.active',
-        'turn-type': 'turn-controls.turnType'
-    }
+  defaultComponents: {
+    'smooth-locomotion': {},
+    'turn-controls': {},
+    'hand-controls': { hand: 'left', handModelStyle: 'lowPoly', color: '#ffcccc' },
+    'oculus-touch-controls': {},
+    'haptics': {}
+  },
+  mappings: {
+    hand: 'hand-controls.hand',
+    move: 'smooth-locomotion.active',
+    speed: 'smooth-locomotion.speed',
+    'turn-type': 'turn-controls.turnType',
+    'snap-degrees': 'turn-controls.snapDegrees',
+    'turn-deadzone': 'turn-controls.deadzone',
+    'turn-cooldown': 'turn-controls.cooldown'
+  }
 });
