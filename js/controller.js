@@ -92,9 +92,6 @@ AFRAME.registerComponent('turn-controls', {
     // Position adjustment vectors
     this.lastHeadPos = new THREE.Vector3();
     this.newHeadPos = new THREE.Vector3();
-
-    // Add visual indicator
-    this.addTurnIndicator();
     
     // Thumbstick event with deadzone
     this.rightHand.addEventListener('axismove', (event) => {
@@ -103,20 +100,6 @@ AFRAME.registerComponent('turn-controls', {
       this.rotateX = Math.abs(rawValue) > this.data.deadzone ? 
         (rawValue - (Math.sign(rawValue) * this.data.deadzone)) / (1 - this.data.deadzone) : 0;
     });
-  },
-  
-  addTurnIndicator: function() {
-    if (!document.querySelector('#turnIndicator')) {
-      const indicator = document.createElement('a-ring');
-      indicator.setAttribute('id', 'turnIndicator');
-      indicator.setAttribute('radius-inner', '0.02');
-      indicator.setAttribute('radius-outer', '0.03');
-      indicator.setAttribute('position', '0 0 -0.1');
-      indicator.setAttribute('rotation', '-90 0 0');
-      indicator.setAttribute('material', 'color: grey; transparent: true; opacity: 0.5');
-      indicator.setAttribute('visible', 'false');
-      this.rightHand.appendChild(indicator);
-    }
   },
   
   tick: function (time, timeDelta) {
@@ -148,14 +131,6 @@ AFRAME.registerComponent('turn-controls', {
       
       // Update last turn time
       this.lastTurnTime = now;
-      
-      // Visual feedback
-      const indicator = document.querySelector('#turnIndicator');
-      if (indicator) {
-        indicator.setAttribute('material', 'color', turnDirection > 0 ? 'red' : 'blue');
-        indicator.setAttribute('visible', 'true');
-        setTimeout(() => indicator.setAttribute('visible', 'false'), 200);
-      }
       
       // Haptic feedback if available
       if (this.rightHand.components.haptics) {
@@ -191,5 +166,23 @@ AFRAME.registerPrimitive('a-controller', {
     'snap-degrees': 'turn-controls.snapDegrees',
     'turn-deadzone': 'turn-controls.deadzone',
     'turn-cooldown': 'turn-controls.cooldown'
+  }
+});
+
+AFRAME.registerComponent('reset-on-vr-exit', {
+  init: function() {
+    this.el.sceneEl.addEventListener('exit-vr', () => {
+      const controllers = document.querySelectorAll('[hand-controls], [oculus-touch-controls]');
+      controllers.forEach(controller => {
+        // Reset rotation and position
+        controller.setAttribute('rotation', '0 0 0');
+        
+        // Optional: Reset the controller model if it exists
+        const model = controller.querySelector('[gltf-model], [obj-model]');
+        if (model) {
+          model.setAttribute('rotation', '0 0 0');
+        }
+      });
+    });
   }
 });
