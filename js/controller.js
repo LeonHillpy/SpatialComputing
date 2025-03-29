@@ -150,6 +150,7 @@ AFRAME.registerComponent('turn-controls', {
   }
 });
 
+// Controller settings
 AFRAME.registerPrimitive('a-controller', {
   defaultComponents: {
     'smooth-locomotion': {},

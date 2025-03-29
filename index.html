@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>VR</title>
+    <link rel="shortcut icon" href="#">
     <!--Import A-Frame-->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <!--A-Frame Extras-->
@@ -29,19 +30,22 @@
 
         <!-- Player Rig for Controller Movement -->
         <a-entity id="player" position="0 0.4 0">
-            <a-entity id="head" camera wasd-controls look-controls></a-entity>
+            <a-entity id="head" 
+                      camera 
+                      wasd-controls 
+                      look-controls></a-entity>
             <!-- Left Controller (Movement) -->
             <a-controller id="controllerL" 
-            hand="left" 
-            move="true"
-            hand-model-style="lowPoly"
-            hand-color="#ffcccc"></a-controller>
+                          hand="left" 
+                          move="true"
+                          hand-model-style="lowPoly"
+                          hand-color="#ffcccc"></a-controller>
             <!-- Right Controller (Snap Turning) -->
             <a-controller id="controllerR" 
-            hand="right"
-            turn-type="snap"
-            hand-model-style="lowPoly"
-            hand-color="#ccccff"></a-controller>
+                          hand="right"
+                          turn-type="snap"
+                          hand-model-style="lowPoly"
+                          hand-color="#ffcccc"></a-controller>
         </a-entity>
 
         <!--ENTITIES-->
@@ -65,7 +69,11 @@
                   material="src: #grass-texture; repeat: 10 10"
                   position="0 0 0"
                   rotation="-90 0 0"
-                  static-body></a-entity>
+                  static-body
+                  sound="src: url(audio/music-for-sleep-song-of-the-sea-250856.mp3); 
+                         autoplay: true;
+                         volume: 0.1;
+                         refDistance: 100"></a-entity>
 
         <!--Text-->
         <a-entity id="text"
@@ -89,7 +97,7 @@
                   position="8 11.6 8"></a-entity>
 
         <!--Sky-->
-        <a-sky id="sky" color="#87CEEB"></a-sky>
+        <a-sky id="sky" color="#87CEEB"></a-sky>      
     </a-scene>
 
     <script>
