@@ -154,64 +154,22 @@ AFRAME.registerPrimitive('a-controller', {
   defaultComponents: {
     'smooth-locomotion': {},
     'turn-controls': {},
-    'hand-controls': { hand: 'left', handModelStyle: 'lowPoly', color: '#ffcccc' },
-    'oculus-touch-controls': {},
-    'haptics': {}
+    'hand-controls': {
+      hand: 'left',
+      handModelStyle: 'lowPoly', // or 'highPoly'
+      color: '#ffcccc'
+    },
+    'oculus-touch-controls': {
+      hand: 'left',
+      model: false // Disable default controller model
+    }
   },
   mappings: {
     hand: 'hand-controls.hand',
     move: 'smooth-locomotion.active',
     speed: 'smooth-locomotion.speed',
     'turn-type': 'turn-controls.turnType',
-    'snap-degrees': 'turn-controls.snapDegrees',
-    'turn-deadzone': 'turn-controls.deadzone',
-    'turn-cooldown': 'turn-controls.cooldown'
-  }
-});
-
-AFRAME.registerComponent('quest3-controller-reset', {
-  init: function() {
-    const sceneEl = this.el;
-    let controllers = [];
-
-    // Reset function
-    const resetControllers = () => {
-      controllers.forEach(controller => {
-        // Reset rotation and model orientation
-        controller.object3D.rotation.set(0, 0, 0);
-        
-        const model = controller.querySelector('[gltf-model], [obj-model]');
-        if (model) model.object3D.rotation.set(0, 0, 0);
-        
-        // Quest 3 specific: Force controller system reinitialization
-        if (controller.components['oculus-touch-controls']) {
-          controller.components['oculus-touch-controls'].updateControllerModel();
-        }
-      });
-    };
-
-    // Track controllers
-    sceneEl.addEventListener('controllerconnected', (e) => {
-      controllers.push(e.detail.target);
-    });
-
-    // Handle both exit and enter events
-    sceneEl.addEventListener('exit-vr', resetControllers);
-    sceneEl.addEventListener('enter-vr', resetControllers); // Add this for Quest 3
-    
-    // Periodic check (for Quest 3 menu button pause/resume)
-    this.interval = setInterval(() => {
-      if (sceneEl.is('vr-mode')) {
-        controllers.forEach(c => {
-          if (Math.abs(c.object3D.rotation.x) > 0.5) {
-            resetControllers();
-          }
-        });
-      }
-    }, 1000);
-  },
-
-  remove: function() {
-    clearInterval(this.interval);
+    'hand-model-style': 'hand-controls.handModelStyle',
+    'hand-color': 'hand-controls.color'
   }
 });
