@@ -6,18 +6,20 @@
     <link rel="shortcut icon" href="#">
     <!--Import A-Frame-->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <!--A-Frame extras-->
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.x/dist/aframe-extras.min.js"></script></script>
+
+    <script src="https://unpkg.com/aframe-super-hands-component@4.0.5/dist/aframe-super-hands.min.js"></script>
+
     <!--Community Physics System-->
     <script src="https://unpkg.com/@c-frame/aframe-physics-system@4.2.2/dist/aframe-physics-system.min.js"></script>
     <!--Environment Components-->
     <script src="https://unpkg.com/aframe-environment-component@1.3.x/dist/aframe-environment-component.min.js"></script>
     <!--A-Frame Hand Controls-->
     <script src="https://cdn.jsdelivr.net/npm/aframe-hand-controls@1.3.0/dist/aframe-hand-controls.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/gh/wmurphyrd/aframe-super-hands-component@4.0.5/dist/aframe-super-hands.min.js"></script>
     <!--Controller.js-->
     <script src="js/controller.js"></script>
+    <script>
+        delete AFRAME.components["grabbable"];
+      </script>
 </head>
 <body>
     <script>
@@ -48,51 +50,28 @@
         </a-assets>
 
         <!-- Player Rig for Controller Movement -->
-        <a-entity id="player" position="0 0.3 0">
+        <a-entity id="player" position="0 0.4 0">
             <a-entity id="head" 
                       camera 
                       wasd-controls 
                       look-controls></a-entity>
-           <!-- Left Controller -->
-            <a-entity id="controllerL"
-                        hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"
-                        oculus-touch-controls="hand: left; model: false"
-                        sphere-collider="objects: .grabbable; radius: 0.05"
-                        smooth-locomotion="active: true; speed: 2"
-                        super-hands>
-            </a-entity>
+            <a-entity id="controllerL" sphere-collider="objects: a-box" super-hands hand-controls="hand: left"></a-entity>
+            <a-entity id="controllerR" sphere-collider="objects: a-box" super-hands hand-controls="hand: right"></a-entity>
 
-            <!-- Right Controller -->
-            <a-entity id="controllerR"
-                    hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"
-                    oculus-touch-controls="hand: right; model: false"
-                    sphere-collider="objects: .grabbable; radius: 0.05"
-                    super-hands>
-            </a-entity>
         </a-entity>
 
         <!--ENTITIES-->
         <!--Box-->
         <a-entity id="box1" 
-          class="grabbable"
-          geometry="primitive: box"
-          material="src: #wood-texture"
-          position="-1.1 0.6 -5" 
-          dynamic-body
-          grabbable
-          hoverable
-          draggable></a-entity>
-                  
-        <!--Cylinder-->
-        <a-entity id="cylinder1" 
-          class="grabbable"
-          geometry="primitive: cylinder; radius: 0.5; height: 1.5"
-          material="src: #steel-texture" 
-          position="1.47 0.75 -5.15"
-          dynamic-body
-          grabbable
-          hoverable
-          draggable></a-entity>
+                  geometry="primitive: box"
+                  material="src: #wood-texture"
+                  position="-1.10502 0.6 -4.97359" 
+                  dynamic-body
+                  hoverable
+                  grabbable
+                  stretchable
+                  draggable
+                  droppable></a-entity>
 
         <!--Plane-->
         <a-entity id="grass-plane" 
