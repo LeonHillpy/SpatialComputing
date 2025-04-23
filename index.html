@@ -6,9 +6,8 @@
     <link rel="shortcut icon" href="#">
     <!--Import A-Frame-->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-
+    <!--Super Hands-->
     <script src="https://unpkg.com/aframe-super-hands-component@4.0.5/dist/aframe-super-hands.min.js"></script>
-
     <!--Community Physics System-->
     <script src="https://unpkg.com/@c-frame/aframe-physics-system@4.2.2/dist/aframe-physics-system.min.js"></script>
     <!--Environment Components-->
@@ -55,23 +54,39 @@
                       camera 
                       wasd-controls 
                       look-controls></a-entity>
-            <a-entity id="controllerL" sphere-collider="objects: a-box" super-hands hand-controls="hand: left"></a-entity>
-            <a-entity id="controllerR" sphere-collider="objects: a-box" super-hands hand-controls="hand: right"></a-entity>
-
+            <!-- Left Controller (Movement) -->
+            <a-controller id="controllerL" 
+                          hand="left" 
+                          move="true"
+                          hand-model-style="lowPoly"
+                          hand-color="#ffcccc"
+                          sphere-collider="objects: a-box"
+                          super-hands></a-controller>
+            <!-- Right Controller (Snap Turning) -->
+            <a-controller id="controllerR" 
+                          hand="right"
+                          turn-type="snap"
+                          hand-model-style="lowPoly"
+                          hand-color="#ffcccc"
+                          sphere-collider="objects: a-box"
+                          super-hands></a-controller>
         </a-entity>
 
         <!--ENTITIES-->
         <!--Box-->
-        <a-entity id="box1" 
+        <a-box id="box1" 
                   geometry="primitive: box"
                   material="src: #wood-texture"
                   position="-1.10502 0.6 -4.97359" 
                   dynamic-body
-                  hoverable
-                  grabbable
-                  stretchable
-                  draggable
-                  droppable></a-entity>
+                  hoverable grabbable stretchable draggable droppable></a-box>
+                  
+        <!--Cylinder-->
+        <a-entity id="cylinder1" 
+                  geometry="primitive: cylinder; radius: 0.5; height: 1.5"
+                  material="src: #steel-texture" 
+                  position="1.46853 0.75 -5.1499"
+                  static-body></a-entity>
 
         <!--Plane-->
         <a-entity id="grass-plane" 
