@@ -6,8 +6,8 @@
     <link rel="shortcut icon" href="#">
     <!--Import A-Frame-->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <!--Super Hands-->
-    <script src="https://unpkg.com/aframe-super-hands-component@4.0.5/dist/aframe-super-hands.min.js"></script>
+    <!--A-Frame Extras-->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
     <!--Community Physics System-->
     <script src="https://unpkg.com/@c-frame/aframe-physics-system@4.2.2/dist/aframe-physics-system.min.js"></script>
     <!--Environment Components-->
@@ -16,9 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/aframe-hand-controls@1.3.0/dist/aframe-hand-controls.min.js"></script>
     <!--Controller.js-->
     <script src="js/controller.js"></script>
-    <script>
-        delete AFRAME.components["grabbable"];
-      </script>
+    <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.2/dist/super-hands.min.js"></script>
 </head>
 <body>
     <script>
@@ -36,6 +34,8 @@
                 opacity: 'ocean.opacity'
             }
         });
+
+        
     </script>
 
     <!--Main A-Frame Scene-->
@@ -54,39 +54,49 @@
                       camera 
                       wasd-controls 
                       look-controls></a-entity>
-            <!-- Left Controller (Movement) -->
-            <a-controller id="controllerL" 
-                          hand="left" 
-                          move="true"
-                          hand-model-style="lowPoly"
-                          hand-color="#ffcccc"
-                          sphere-collider="objects: a-box"
-                          super-hands></a-controller>
-            <!-- Right Controller (Snap Turning) -->
-            <a-controller id="controllerR" 
-                          hand="right"
-                          turn-type="snap"
-                          hand-model-style="lowPoly"
-                          hand-color="#ffcccc"
-                          sphere-collider="objects: a-box"
-                          super-hands></a-controller>
+        <!-- Left Controller (Movement + Grab) -->
+        <a-controller id="controllerL" 
+                    hand="left" 
+                    move="true"
+                    hand-model-style="lowPoly"
+                    hand-color="#ffcccc"
+                    super-hands
+                    collision-filter="group: hand; collidesWith: grab"></a-controller>
+
+        <!-- Right Controller (Snap Turning + Grab) -->
+        <a-controller id="controllerR" 
+                    hand="right"
+                    turn-type="snap"
+                    hand-model-style="lowPoly"
+                    hand-color="#ffcccc"
+                    super-hands
+                    collision-filter="group: hand; collidesWith: grab"></a-controller>
         </a-entity>
 
         <!--ENTITIES-->
-        <!--Box-->
-        <a-box id="box1" 
-                  geometry="primitive: box"
-                  material="src: #wood-texture"
-                  position="-1.10502 0.6 -4.97359" 
-                  dynamic-body
-                  hoverable grabbable stretchable draggable droppable></a-box>
-                  
-        <!--Cylinder-->
+       <!-- Box (grabbable) -->
+        <a-entity id="box1" 
+        geometry="primitive: box"
+        material="src: #wood-texture"
+        position="-1.10502 0.6 -4.97359" 
+        dynamic-body
+        class="grabbable"
+        grabbable
+        stretchable
+        droppable
+        collision-filter="group: grab; collidesWith: hand"></a-entity>
+
+        <!-- Cylinder (grabbable) -->
         <a-entity id="cylinder1" 
-                  geometry="primitive: cylinder; radius: 0.5; height: 1.5"
-                  material="src: #steel-texture" 
-                  position="1.46853 0.75 -5.1499"
-                  static-body></a-entity>
+        geometry="primitive: cylinder; radius: 0.5; height: 1.5"
+        material="src: #steel-texture" 
+        position="1.46853 0.75 -5.1499"
+        dynamic-body
+        class="grabbable"
+        grabbable
+        stretchable
+        droppable
+        collision-filter="group: grab; collidesWith: hand"></a-entity>
 
         <!--Plane-->
         <a-entity id="grass-plane" 
