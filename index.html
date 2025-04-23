@@ -64,10 +64,10 @@
 
             <!-- Right Controller -->
             <a-entity id="controllerR"
-                        hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"
-                        oculus-touch-controls="hand: right; model: false"
-                        sphere-collider="objects: [grabbable]"
-                        super-hands>
+                    hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"
+                    oculus-touch-controls="hand: right; model: false"
+                    sphere-collider="objects: .grabbable; radius: 0.05"
+                    super-hands>
             </a-entity>
         </a-entity>
 
@@ -85,11 +85,14 @@
                   
         <!--Cylinder-->
         <a-entity id="cylinder1" 
-                  geometry="primitive: cylinder; radius: 0.5; height: 1.5"
-                  material="src: #steel-texture" 
-                  position="1.46853 0.75 -5.1499"
-                  dynamic-body
-                  grabbable></a-entity>
+          class="grabbable"
+          geometry="primitive: cylinder; radius: 0.5; height: 1.5"
+          material="src: #steel-texture" 
+          position="1.47 0.75 -5.15"
+          dynamic-body
+          grabbable
+          hoverable
+          draggable></a-entity>
 
         <!--Plane-->
         <a-entity id="grass-plane" 
