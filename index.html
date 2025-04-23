@@ -53,19 +53,22 @@
                       camera 
                       wasd-controls 
                       look-controls></a-entity>
-           <!-- Left Controller (Movement) -->
+           <!-- Left Controller -->
             <a-entity id="controllerL"
-                      hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"
-                      oculus-touch-controls="hand: left; model: false"
-                      smooth-locomotion="active: true; speed: 2"
-                      super-hands>
+                        hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"
+                        oculus-touch-controls="hand: left; model: false"
+                        laser-controls="hand: left"
+                        sphere-collider="objects: [grabbable] radius: 0.1"
+                        super-hands>
             </a-entity>
-            <!-- Right Controller (Turning) -->
+
+            <!-- Right Controller -->
             <a-entity id="controllerR"
-                      hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"
-                      oculus-touch-controls="hand: right; model: false"
-                      turn-controls="turnType: snap; snapDegrees: 45; cooldown: 300"
-                      super-hands>
+                        hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"
+                        oculus-touch-controls="hand: right; model: false"
+                        laser-controls="hand: right"
+                        sphere-collider="objects: [grabbable] radius: 0.1"
+                        super-hands>
             </a-entity>
         </a-entity>
 
