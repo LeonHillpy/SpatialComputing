@@ -57,8 +57,8 @@
             <a-entity id="controllerL"
                         hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"
                         oculus-touch-controls="hand: left; model: false"
-                        laser-controls="hand: left"
-                        sphere-collider="objects: [grabbable]"
+                        sphere-collider="objects: .grabbable; radius: 0.05"
+                        smooth-locomotion="active: true; speed: 2"
                         super-hands>
             </a-entity>
 
@@ -66,7 +66,6 @@
             <a-entity id="controllerR"
                         hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"
                         oculus-touch-controls="hand: right; model: false"
-                        laser-controls="hand: right"
                         sphere-collider="objects: [grabbable]"
                         super-hands>
             </a-entity>
@@ -75,11 +74,14 @@
         <!--ENTITIES-->
         <!--Box-->
         <a-entity id="box1" 
-                  geometry="primitive: box"
-                  material="src: #wood-texture"
-                  position="-1.10502 0.6 -4.97359" 
-                  dynamic-body
-                  grabbable></a-entity>
+          class="grabbable"
+          geometry="primitive: box"
+          material="src: #wood-texture"
+          position="-1.1 0.6 -5" 
+          dynamic-body
+          grabbable
+          hoverable
+          draggable></a-entity>
                   
         <!--Cylinder-->
         <a-entity id="cylinder1" 
