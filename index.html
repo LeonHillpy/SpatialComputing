@@ -6,11 +6,8 @@
     <link rel="shortcut icon" href="#">
     <!--Import A-Frame-->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script>
-        delete AFRAME.components["grabbable"];
-      </script>
+    <!--A-Frame extras-->
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.x/dist/aframe-extras.min.js"></script></script>
-    <script src="https://unpkg.com/super-hands@^3.0.5/dist/super-hands.min.js"></script>
     <!--Community Physics System-->
     <script src="https://unpkg.com/@c-frame/aframe-physics-system@4.2.2/dist/aframe-physics-system.min.js"></script>
     <!--Environment Components-->
@@ -38,8 +35,6 @@
                 opacity: 'ocean.opacity'
             }
         });
-
-        
     </script>
 
     <!--Main A-Frame Scene-->
@@ -53,25 +48,25 @@
         </a-assets>
 
         <!-- Player Rig for Controller Movement -->
-        <a-entity id="player" position="0 0.4 0">
+        <a-entity id="player" position="0 0.3 0">
             <a-entity id="head" 
                       camera 
                       wasd-controls 
                       look-controls></a-entity>
-            <!-- Left Controller (Movement) -->
-            <a-controller id="controllerL" 
-                          hand="left" 
-                          move="true"
-                          hand-model-style="lowPoly"
-                          hand-color="#ffcccc"
-                          super-hands></a-controller>
-            <!-- Right Controller (Snap Turning) -->
-            <a-controller id="controllerR" 
-                          hand="right"
-                          turn-type="snap"
-                          hand-model-style="lowPoly"
-                          hand-color="#ffcccc"
-                          super-hands></a-controller>
+           <!-- Left Controller (Movement) -->
+            <a-entity id="controllerL"
+                      hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"
+                      oculus-touch-controls="hand: left; model: false"
+                      smooth-locomotion="active: true; speed: 2"
+                      super-hands>
+            </a-entity>
+            <!-- Right Controller (Turning) -->
+            <a-entity id="controllerR"
+                      hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"
+                      oculus-touch-controls="hand: right; model: false"
+                      turn-controls="turnType: snap; snapDegrees: 45; cooldown: 300"
+                      super-hands>
+            </a-entity>
         </a-entity>
 
         <!--ENTITIES-->
