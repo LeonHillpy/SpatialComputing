@@ -163,7 +163,8 @@ AFRAME.registerPrimitive('a-controller', {
     'oculus-touch-controls': {
       hand: 'left',
       model: false // Disable default controller model
-    }
+    },
+    'laser-controls': {}
   },
   mappings: {
     hand: 'hand-controls.hand',
