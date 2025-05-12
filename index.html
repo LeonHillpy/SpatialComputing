@@ -77,14 +77,14 @@
         <a-entity id="box2" 
                   geometry="primitive: box"
                   material="src: #wood-texture"
-                  position="0.4 0.6 -4.97359" 
-                  dynamic-body></a-entity>
+                  position="0.4 0.6 -4.97359">
+        </a-entity>
 
         <a-entity id="box3" 
                   geometry="primitive: box"
                   material="src: #wood-texture"
-                  position="2 0.6 -4.97359" 
-                  dynamic-body></a-entity>
+                  position="2 0.6 -4.97359">
+        </a-entity>
 
         <!--Text-->
         <a-entity id="text-rotate"
@@ -159,14 +159,14 @@
         document.querySelector('#controllerR').addEventListener('bbuttondown', function (event) {
             // Start the animation for box1 when the button is pressed
             const box2 = document.querySelector('#box2');
-            box2.setAttribute('animation', 'property: position; to: 0 3 0; dur: 2000');
+            box2.setAttribute('animation', 'property: position; to: 0 3 0; loop: true; dur: 2000');
         });
 
         // Listen for button press event on the right controller
         document.querySelector('#controllerR').addEventListener('triggerdown', function (event) {
             // Start the animation for box1 when the button is pressed
             const box3 = document.querySelector('#box3');
-            box3.setAttribute('animation', 'property: scale; to: 0.5 0.5 0.5; dur: 2000');
+            box3.setAttribute('animation', 'property: scale; to: 0.5 0.5 0.5; loop: true; dur: 2000');
         });
 
     </script>
