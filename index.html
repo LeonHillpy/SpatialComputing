@@ -33,6 +33,26 @@
                 opacity: 'ocean.opacity'
             }
         });
+        
+        AFRAME.registerComponent('clickable', {
+        init: function() {
+            var el = this.el;
+            var sceneEl = document.querySelector('a-scene');
+            
+            // Listen for the "click" event on the right controller
+            sceneEl.addEventListener('click', function() {
+                // Trigger a custom event to animate the box
+                el.emit('animate', { color: 'red' });
+            });
+            
+            // Listen for the "animate" event and trigger box animation
+            el.addEventListener('animate', function(e) {
+                el.setAttribute('material', 'color', e.detail.color);
+                el.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
+            });
+        }
+    });
+        
     </script>
 
     <!--Main A-Frame Scene-->
@@ -61,6 +81,7 @@
             <a-controller id="controllerR" 
                             hand="right"
                             turn-type="snap"
+                            cursor="rayOrigin: entity; fuse: true; fuseTimeout: 500"
                             hand-model-style="lowPoly"
                             hand-color="#ffcccc"></a-controller>
         </a-entity>
