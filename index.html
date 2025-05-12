@@ -148,12 +148,12 @@
             });
         });
 
-        // Listen for button press event on the right controller
+    // Listen for button press event on the right controller
     document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
-        // Check if the A button (index 0) is pressed
-        if (event.detail.index === 0) { // 0 is the index for the A button
-            const box1 = document.querySelector('#box1');
-            // Start the rotation animation for box1 when the A button is pressed
+        const box1 = document.querySelector('#box1');
+        
+        // If it's the A button (index 0), trigger the animation
+        if (event.detail.index === 0) {
             box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
         }
     });
