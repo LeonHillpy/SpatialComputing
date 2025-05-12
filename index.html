@@ -56,15 +56,16 @@
                           hand="left" 
                           move="true"
                           hand-model-style="lowPoly"
-                          hand-color="#ffcccc"
-                          laser-controls="hand: left"></a-controller>
+                          hand-color="#ffcccc"></a-controller>
             <!-- Right Controller (Snap Turning) -->
             <a-controller id="controllerR" 
                           hand="right"
                           turn-type="snap"
                           hand-model-style="lowPoly"
                           hand-color="#ffcccc"
-                          laser-controls="hand: right"></a-controller>
+                          laser-controls="hand: right"
+                          raycaster="objects: .clickable"
+                          cursor="rayOrigin: entity; fuse: false"></a-controller>
         </a-entity>
 
         <!--ENTITIES-->
