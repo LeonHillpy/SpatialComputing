@@ -148,13 +148,6 @@
             });
         });
 
-    // Listen for button press event on the right controller
-    document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
-        // Start the animation for box1 when the button is pressed
-        const box1 = document.querySelector('#box1');
-        box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
-    });
-
         // Listen for button press event on the right controller
     document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
         // Check if the A button (index 0) is pressed
