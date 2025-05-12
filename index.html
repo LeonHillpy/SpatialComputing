@@ -88,18 +88,18 @@
 
         <!--Text-->
         <a-entity id="text-rotate"
-                  text="value: Rotate; color: #FAFAFA; width: 2;" 
-                  position="0.2 0.2 -4" 
+                  text="value: Rotate (Press A); color: #FAFAFA; width: 2;" 
+                  position="0 0.2 -4" 
                   scale="1.5 1.5 1.5"></a-entity>
                   
         <a-entity id="text-elevate"
-                  text="value: Elevate; color: #FAFAFA; width: 2;" 
-                  position="1.7 0.2 -4" 
+                  text="value: Elevate (Press B); color: #FAFAFA; width: 2;" 
+                  position="1.4 0.2 -4" 
                   scale="1.5 1.5 1.5"></a-entity>
 
         <a-entity id="text-Shring"
-                  text="value: Shrink; color: #FAFAFA; width: 2;" 
-                  position="3.2 0.2 -4" 
+                  text="value: Shrink (Press Trigger); color: #FAFAFA; width: 2;" 
+                  position="2.8 0.2 -4" 
                   scale="1.5 1.5 1.5"></a-entity>
 
         <!--Plane-->
@@ -134,6 +134,7 @@
     </a-scene>
 
     <script>
+
         // Debug controller events
         document.querySelector('a-scene').addEventListener('loaded', function() {
             const leftController = document.querySelector('#controllerL');
@@ -147,13 +148,6 @@
             });
         });
 
-            // Listen for button press event on the right controller
-        document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
-            // Start the animation for box1 when the button is pressed
-            const box1 = document.querySelector('#box1');
-            box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
-        });
-
         // Listen for button press event on the right controller
         document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
             // Check if the A button (index 0) is pressed
@@ -161,6 +155,26 @@
                 const box1 = document.querySelector('#box1');
                 // Start the animation for box1 when the A button is pressed
                 box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
+            }
+        });
+
+        // Listen for button press event on the right controller
+        document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
+            // Check if the B button (index 1) is pressed
+            if (event.detail.index === 1) { // 1 is the index for the B button
+                const box2 = document.querySelector('#box2');
+                // Start the elevation animation for box2 when the B button is pressed
+                box2.setAttribute('animation', 'property: position; to: 0 2 -4.97359; dur: 1000; easing: easeInOutQuad');
+            }
+        });
+
+        // Listen for button press event on the right controller
+        document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
+            // Check if the A button (index 0) is pressed
+            if (event.detail.index === 2) { // 0 is the index for the A button
+                const box3 = document.querySelector('#box3');
+                // Start the animation for box1 when the A button is pressed
+                box1.setAttribute('animation', 'property: scale; to: 0.5 0.5 0.5; dur: 1000; easing: easeInOutQuad');
             }
         });
     </script>
