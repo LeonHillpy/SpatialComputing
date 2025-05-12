@@ -33,26 +33,6 @@
                 opacity: 'ocean.opacity'
             }
         });
-        
-        AFRAME.registerComponent('clickable', {
-        init: function() {
-            var el = this.el;
-            var sceneEl = document.querySelector('a-scene');
-            
-            // Listen for the "click" event on the right controller
-            sceneEl.addEventListener('click', function() {
-                // Trigger a custom event to animate the box
-                el.emit('animate', { color: 'red' });
-            });
-            
-            // Listen for the "animate" event and trigger box animation
-            el.addEventListener('animate', function(e) {
-                el.setAttribute('material', 'color', e.detail.color);
-                el.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
-            });
-        }
-    });
-        
     </script>
 
     <!--Main A-Frame Scene-->
@@ -91,11 +71,8 @@
         <a-entity id="box1" 
                 geometry="primitive: box"
                 material="src: #wood-texture"
-                position="-1.1 0.6 -4.97359" 
-                dynamic-body
-                class="clickable"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 2000; startEvents: click"
-                event-set__click="_event: click; _target: #box1; material.color: red"></a-entity>
+                position="-1.1 0.6 -4.97359">
+        </a-entity>
 
         <a-entity id="box2" 
                   geometry="primitive: box"
@@ -168,6 +145,13 @@
             rightController.addEventListener('axismove', (e) => {
                 console.log('Right axis:', e.detail.axis);
             });
+        });
+
+            // Listen for button press event on the right controller
+        document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
+            // Start the animation for box1 when the button is pressed
+            const box1 = document.querySelector('#box1');
+            box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
         });
     </script>
 </body>
