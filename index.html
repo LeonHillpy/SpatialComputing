@@ -150,12 +150,9 @@
 
     // Listen for button press event on the right controller
     document.querySelector('#controllerR').addEventListener('buttondown', function (event) {
-        // Handle rotation (A button, index 0)
-        if (event.detail.index === 0) { // 0 is the index for the A button
-            const box1 = document.querySelector('#box1');
-            // Start the rotation animation for box1 when the A button is pressed
-            box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
-        }
+        // Start the animation for box1 when the button is pressed
+        const box1 = document.querySelector('#box1');
+        box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
     });
     </script>
 </body>
