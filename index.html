@@ -73,8 +73,10 @@
                   geometry="primitive: box"
                   material="src: #wood-texture"
                   position="-1.1 0.6 -4.97359" 
-                  dynamic-body></a-entity>
-                          <!--Box-->
+                  dynamic-body
+                  class="clickable"
+                  animation_spin="property: rotation; to: 0 360 0; loop: true; dur: 2000; startEvents: click"></a-entity>
+
         <a-entity id="box2" 
                   geometry="primitive: box"
                   material="src: #wood-texture"
@@ -91,9 +93,7 @@
         <a-entity id="text-rotate"
                   text="value: Rotate; color: #FAFAFA; width: 2;" 
                   position="0.2 0.2 -4" 
-                  scale="1.5 1.5 1.5"
-                  class="clickable"
-                  animation_spin="property: rotation; to: 0 360 0; loop: true; dur: 2000; startEvents: click"></a-entity>
+                  scale="1.5 1.5 1.5"></a-entity>
                   
         <a-entity id="text-elevate"
                   text="value: Elevate; color: #FAFAFA; width: 2;" 
@@ -123,7 +123,7 @@
                  depth="500" 
                  width="500" 
                  position="0 -0.5 0" 
-                 density="250"></a-ocean>
+                 density="50"></a-ocean>
 
         <!--Lighting-->
         <a-entity id="light-ambient" 
