@@ -151,6 +151,8 @@
 
         const controllerR = document.querySelector('#controllerR');
 
+        const originalBox2Position = '0.4 0.6 -4.97359';
+
         let isBox1Rotating = false;
         let isBox2Moving = false;
         let isBox3Scaling = false;
@@ -168,9 +170,12 @@
         controllerR.addEventListener('bbuttondown', function () {
             const box2 = document.querySelector('#box2');
             if (!isBox2Moving) {
-            box2.setAttribute('animation', 'property: position; to: 0.4 3 -4.97359; dur: 2000; dir: alternate; loop: true');
+                // Reset to original position before starting animation
+                box2.setAttribute('position', originalBox2Position);
+                box2.setAttribute('animation__elevate', 
+                    'property: position; to: 0.4 3 -4.97359; dur: 2000; dir: alternate; loop: true');
             } else {
-            box2.removeAttribute('animation');
+                box2.removeAttribute('animation__elevate');
             }
             isBox2Moving = !isBox2Moving;
         });
