@@ -187,6 +187,7 @@
             isBox2Moving = !isBox2Moving;
         });
 
+        /*
         controllerR.addEventListener('triggerdown', function () {
             const box3 = document.querySelector('#box3');
             if (!isBox3Scaling) {
@@ -195,6 +196,13 @@
                 box3.removeAttribute('animation__shrink');
             }
             isBox3Scaling = !isBox3Scaling;
+        });
+        */
+
+        document.querySelector('#controllerR').addEventListener('triggerdown', function (event) {
+            // Start the animation for box1 when the button is pressed
+            const box3 = document.querySelector('#box3');
+            box3.setAttribute('animation', 'property: scale; to: 0.5 0.5 0.5; loop: true; dur: 2000');
         });
 
     </script>
