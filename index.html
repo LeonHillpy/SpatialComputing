@@ -59,19 +59,20 @@
                           hand-color="#ffcccc"></a-controller>
             <!-- Right Controller (Snap Turning) -->
             <a-controller id="controllerR" 
-                            hand="right"
-                            turn-type="snap"
-                            cursor="rayOrigin: entity; fuse: true; fuseTimeout: 500"
-                            hand-model-style="lowPoly"
-                            hand-color="#ffcccc"></a-controller>
+                          hand="right"
+                          turn-type="snap"
+                          cursor="rayOrigin: entity; fuse: true; fuseTimeout: 500"
+                          hand-model-style="lowPoly"
+                          hand-color="#ffcccc"></a-controller>
         </a-entity>
 
         <!--ENTITIES-->
-        <!--Box-->
+
+        <!--Boxes-->
         <a-entity id="box1" 
-                geometry="primitive: box"
-                material="src: #wood-texture"
-                position="-1.1 0.6 -4.97359">
+                  geometry="primitive: box"
+                  material="src: #wood-texture"
+                  position="-1.1 0.6 -4.97359">
         </a-entity>
 
         <a-entity id="box2" 
@@ -167,7 +168,7 @@
         controllerR.addEventListener('bbuttondown', function () {
             const box2 = document.querySelector('#box2');
             if (!isBox2Moving) {
-            box2.setAttribute('animation', 'property: position; to: 0.4 3 -4.97359; dur: 2000');
+            box2.setAttribute('animation', 'property: position; to: 0.4 3 -4.97359; dur: 2000; dir: alternate; loop: true');
             } else {
             box2.removeAttribute('animation');
             }
@@ -177,7 +178,7 @@
         controllerR.addEventListener('triggerdown', function () {
             const box3 = document.querySelector('#box3');
             if (!isBox3Scaling) {
-            box3.setAttribute('animation', 'property: scale; to: 0.5 0.5 0.5; loop: true; dur: 2000');
+            box3.setAttribute('animation', 'property: scale; to: 0.5 0.5 0.5; dur: 2000; dir: alternate; loop: true');
             } else {
             box3.removeAttribute('animation');
             }
