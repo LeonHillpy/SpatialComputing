@@ -152,31 +152,38 @@
         const controllerR = document.querySelector('#controllerR');
 
         const originalBox2Position = '0.4 0.6 -4.97359';
+        const originalBox1Rotation = '0 0 0';
 
         let isBox1Rotating = false;
         let isBox2Moving = false;
         let isBox3Scaling = false;
 
+
         controllerR.addEventListener('abuttondown', function () {
             const box1 = document.querySelector('#box1');
             if (!isBox1Rotating) {
-            box1.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 2000');
+                // Reset rotation to starting point
+                box1.setAttribute('rotation', originalBox1Rotation);
+                // Start infinite smooth rotation (spins around Y-axis forever)
+                box1.setAttribute('animation__spin', 
+                    'property: rotation; to: 0 999999 0; dur: 99999900; easing: linear; loop: true');
             } else {
-            box1.removeAttribute('animation');
+                box1.removeAttribute('animation__spin');
             }
             isBox1Rotating = !isBox1Rotating;
         });
 
         controllerR.addEventListener('bbuttondown', function () {
             const box2 = document.querySelector('#box2');
+
             if (!isBox2Moving) {
-                // Reset to original position before starting animation
-                box2.setAttribute('position', originalBox2Position);
+                // ⚠️ No reset to original position — it continues from current position
                 box2.setAttribute('animation__elevate', 
                     'property: position; to: 0.4 3 -4.97359; dur: 2000; dir: alternate; loop: true');
             } else {
                 box2.removeAttribute('animation__elevate');
             }
+
             isBox2Moving = !isBox2Moving;
         });
 
