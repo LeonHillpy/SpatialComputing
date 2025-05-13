@@ -11,7 +11,7 @@ Available at: https://github.com/msub2/aframe-vr-character-controller.
 Accessed: 28th March 2025.
 
 */
-
+/*
 AFRAME.registerComponent('smooth-locomotion', {
   schema: {
     speed: { type: 'float', default: 2 },
@@ -62,6 +62,7 @@ AFRAME.registerComponent('smooth-locomotion', {
     );
   }
 });
+*/
 
 AFRAME.registerComponent('turn-controls', {
   schema: {
