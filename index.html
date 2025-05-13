@@ -43,6 +43,8 @@
             <img id="steel-texture" src="images/steel-mesh.png">
             <img id="fire-texture" src="images/fire-mesh.jpg">
             <img id="grass-texture" src="images/grass-texture.jpg">
+            <a-asset-item id="boat-model" src="models\gislinge_viking_boat.glb"></a-asset-item>
+            <a-asset-item id="tree-model" src="models\saule_pleureur.glb"></a-asset-item>
         </a-assets>
 
         <!-- Player Rig for Controller Movement -->
@@ -67,7 +69,6 @@
         </a-entity>
 
         <!--ENTITIES-->
-
         <!--Boxes-->
         <a-entity id="box1" 
                   geometry="primitive: box"
@@ -104,6 +105,33 @@
                   position="2.8 0.2 -4" 
                   scale="1.5 1.5 1.5"></a-entity>
 
+        <a-entity id="text-instruction"
+                  text="value: Animation Testing, created by Leon Hill; color: #FAFAFA; width: 2;" 
+                  position="-2 0.2 -2" 
+                  rotation="0 40 0"
+                  scale="1.5 1.5 1.5"></a-entity>
+
+        <!--Boat-->
+        <a-entity gltf-model="#boat-model"
+                  position="60 -2.8 -10"
+                  scale="0.1 0.1 0.1"
+                  rotation="0 180 0"
+                  animation="property: position; 
+                     to: 60 -2 -10; 
+                     dur: 2000; 
+                     dir: alternate; 
+                     loop: true; 
+                     easing: easeInOutSine"></a-entity>    
+                     
+        <a-entity gltf-model="#tree-model"
+                  position="10 0 -10"
+                  scale="1 1 1"></a-entity>
+
+        <a-entity gltf-model="#tree-model"
+                  position="-10 0 -10"
+                  scale="1 1 1"
+                  rotation="0 45 0"></a-entity>
+
         <!--Plane-->
         <a-entity id="grass-plane" 
                   geometry="primitive: plane; width: 30; height: 30"
@@ -121,8 +149,10 @@
                  color="aqua" 
                  depth="500" 
                  width="500" 
-                 position="0 -0.5 0" 
-                 density="50"></a-ocean>
+                 position="0 -0.9 0" 
+                 density="20"
+                 amplitude="0.5"
+                 speed="1"></a-ocean>
 
         <!--Lighting-->
         <a-entity id="light-ambient" 
@@ -134,7 +164,6 @@
         <!--Sky-->
         <a-sky id="sky" color="#87CEEB"></a-sky>      
     </a-scene>
-
     <script>
 
         // Debug controller events
@@ -157,8 +186,8 @@
 
         let isBox1Rotating = false;
         let isBox2Moving = false;
-        let isBox3Scaling = false;
 
+        // Box 1 rotation animation
         controllerR.addEventListener('abuttondown', function () {
             const box1 = document.querySelector('#box1');
             if (!isBox1Rotating) {
@@ -173,6 +202,7 @@
             isBox1Rotating = !isBox1Rotating;
         });
 
+        // Box 2 elevation animation
         controllerR.addEventListener('bbuttondown', function () {
             const box2 = document.querySelector('#box2');
             if (!isBox2Moving) {
@@ -186,8 +216,8 @@
             isBox2Moving = !isBox2Moving;
         });
         
+        // Box 3 shrinking animation
         document.querySelector('#controllerR').addEventListener('triggerdown', function (event) {
-            // Start the animation for box1 when the button is pressed
             const box3 = document.querySelector('#box3');
             box3.setAttribute('animation', 'property: scale; to: 0.5 0.5 0.5; loop: true; dur: 2000');
         });
